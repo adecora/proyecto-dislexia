@@ -17,5 +17,5 @@ Pero para reprocesar los ficheros originales XLSX, instala `csvkit` 2.0.1 en tu 
 Después, corre el programa que los toma y emite por `stdout` la estructura de datos JSON resultante:
 
 ```shell
-./bin/parser.py > data.json
+./bin/parse.py > data.json
 ```

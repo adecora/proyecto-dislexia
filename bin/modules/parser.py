@@ -10,4 +10,4 @@ def parse_file(file):
             for word in row:
                 # Evitamos las celdas vacías
                 if word:
-                    yield word
+                    yield word.strip()
