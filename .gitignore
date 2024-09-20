@@ -1,1 +1,6 @@
 __pycache__
+# Fichero con los dato de la API
+config.yml
+# Ignoramos los directorios de las palabras tranformadas
+palabras
+nopalabras
