@@ -8,7 +8,13 @@ Un proyecto de Alejandro Varela de Cora.
 
 No es necesario porque el documento JSON con los datos requeridos para probar el proyecto está incluido en el repositorio.
 
-Pero para reprocesar los ficheros originales XLSX, instala `csvkit` 2.0.1 en tu sistema y conviértelos a su versión CSV:
+El código se ejecuta en el entorno software descrito por `environment.yml`. Se puede instalar usando [miniconda](https://docs.anaconda.com/miniconda/):
+
+```shell
+conda env create -f environment.yml
+```
+
+Para reprocesar los ficheros originales XLSX, y convertirlos a su versión CSV:
 
 ```shell
 ./bin/convert.sh
