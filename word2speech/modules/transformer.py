@@ -12,7 +12,7 @@ def send_request(url, data):
 
 
 class Word2Speech:
-    """ "
+    """
     Clase que se encarga de hacer la petición a la API y obtener el audio
     resultante en formato binario.
     """
@@ -28,13 +28,12 @@ class Word2Speech:
             del self.config["contour"]
         self.config.update({"text": word})
         response = send_request(self._url, self.config)
-        print(response)
         if response["status"] == 1:
             if "file" in response and "format" in response:
                 file_url = response["file"]
                 file_format = response["format"]
                 audio = requests.get(file_url).content
-                return (audio, file_format)
+                return (audio, file_format, response["cost"])
             else:
                 raise HTTPError(f"404 Not Found: {response['error']}")
         else:

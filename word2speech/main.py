@@ -6,12 +6,13 @@ o ficheros (json) en audios.
 
 import argparse
 import os.path
+import logging
 import yaml
 from requests.exceptions import HTTPError
 
 
-from word2speech.modules.transformer import Word2Speech
-from word2speech.modules.utilities import (
+from .modules import (
+    Word2Speech,
     Normalizer,
     is_valid_file_word,
     validate_format,
@@ -21,6 +22,12 @@ from word2speech.modules.utilities import (
     validate_bitrate,
     validate_contour_point,
     validate_config_file,
+)
+
+
+log = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO, format="[%(asctime)s]: %(message)s", datefmt="%H:%M:%S"
 )
 
 
@@ -152,15 +159,17 @@ def main():
                     os.makedirs(dirname)
                 for word in words:
                     file_name = norm.normalize(word)
-                    audio, file_format = speech.convert(word)
+                    log.info(f'Generando el audio de la palabra "{word}"')
+                    audio, file_format, cost = speech.convert(word)
+                    log.info(
+                        f'Audio generado "{file_name}.{file_format}" (coste: {cost})'
+                    )
                     save_audio(f"{dirname}/{file_name}.{file_format}", audio)
         else:
             file_name = args.outfile
-            audio, file_format = speech.convert(args.word)
+            log.info(f'Generando el audio de la palabra "{args.word}"')
+            audio, file_format, cost = speech.convert(args.word)
+            log.info(f'Audio generado "{file_name}.{file_format}" (coste: {cost})')
             save_audio(f"{file_name}.{file_format}", audio)
     except HTTPError as error:
         raise SystemExit(error.args[0])
-
-
-if __name__ == "__main__":
-    main()
