@@ -2,8 +2,11 @@ import requests
 from requests.exceptions import HTTPError
 
 
+from modules.utilities import Contour
+
+
 def send_request(url, data):
-    """Devueleve las respuesta en formato JSON de una petición POST."""
+    """Devuelve las respuesta en formato JSON de una petición POST."""
     response = requests.post(url, data=data)
     return response.json()
 
@@ -20,8 +23,12 @@ class Word2Speech:
         self.config = config
 
     def convert(self, word):
+        if "contour" in self.config:
+            word = format(Contour(self.config["contour"]), word)
+            del self.config["contour"]
         self.config.update({"text": word})
         response = send_request(self._url, self.config)
+        print(response)
         if response["status"] == 1:
             if "file" in response and "format" in response:
                 file_url = response["file"]

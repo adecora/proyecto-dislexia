@@ -15,9 +15,31 @@ from modules.transformer import Word2Speech
 from modules.utilities import Normalizer
 
 
+def check_point(point, Error):
+    try:
+        time, pitch = [int(op) for op in point.split(",")]
+        if not 0 <= time <= 100:
+            raise Error("El porcentaje de tiempo tiene que estar entre 0 y 100.")
+        if not -100 <= pitch <= 100:
+            raise Error("El porcentaje de entonación tiene que estar entre -100 y 100.")
+        return time, pitch
+    except ValueError as error:
+        raise Error("Los valores de tiempo y entonación han de ser enteros.") from error
+
+
 def set_config(file):
     """Lee el fichero de configuración."""
     config = yaml.load(file, yaml.Loader)
+    if "contour" in config:
+        contour = []
+        for point in config["contour"]:
+            contour.append(
+                check_point(
+                    point, lambda msg: SystemExit("error: argument contour: %s" % msg)
+                )
+            )
+        config["contour"] = contour
+
     file.close()
     return config
 
@@ -45,6 +67,10 @@ def is_valid_file_word(arg):
         return arg
 
 
+def validate_countour_points(arg):
+    return check_point(arg, argparse.ArgumentTypeError)
+
+
 def save_audio(file_name, file_content):
     """Guarda el fichero de audio descargado."""
     with open(file_name, "wb") as audio_file:
@@ -53,7 +79,11 @@ def save_audio(file_name, file_content):
 
 def parse_arguments():
     """Analiza la línea de comandos para los argumentos de entrada."""
-    parser = argparse.ArgumentParser(description=__doc__, add_help=False)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        add_help=False,
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
     parser._positionals.title = "Argumentos posicionales"
     parser._optionals.title = "Argumentos opcionales"
     parser.add_argument(
@@ -103,13 +133,24 @@ def parse_arguments():
         help="Tasa de muestreo (rango de 8000 a 192000 Hz)",
     )
     parser.add_argument(
+        "--contour",
+        "-c",
+        metavar="x,y",
+        action="append",
+        type=validate_countour_points,
+        help="""
+Detalle de entonación de la palabra, se pueden escoger hasta 5 puntos.
+    x - Porcentaje de duración de la palabra (0 a 100)
+    y - Procentaje de entonación (-100 a 100)
+""",
+    )
+    parser.add_argument(
         "--outfile",
         "-o",
         metavar="fichero",
         default="out",
         help="Guarda el audio con el nombre %(metavar)s",
     )
-
     return parser.parse_args()
 
 
@@ -137,6 +178,8 @@ def main():
         config.update({"emotion": args.emotion})
     if args.bitrate:
         config.update({"bitrate": args.bitrate})
+    if args.contour:
+        config.update({"contour": args.contour})
 
     speech = Word2Speech(config)
     try:

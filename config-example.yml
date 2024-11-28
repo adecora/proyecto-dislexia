@@ -29,3 +29,10 @@ voice: Alvaro
 # Tasa de muestro.
 # (rango de 8000 a 192000 Hz)
 # bitrate: 48000
+
+# Detalle de entonación de la palabra, se pueden escoger hasta 5 puntos.
+#     x - Porcentaje de duración de la palabra (0 a 100)
+#     y - Procentaje de entonación (-100 a 100)
+# contour:
+#   - 100,50 # punto1
+#   - 40,-20 # punto2

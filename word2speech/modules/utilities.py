@@ -22,3 +22,22 @@ class Normalizer:
         b = a.translate(self.cmb_chrs)
         re.sub("[^a-z0-9ñç]", "", b)
         return b
+
+
+class Contour:
+    """
+    Genera el contructor de entonación con los valores indicados, alrededor
+    de la palabra.
+        - contour: Puntos de entonación
+        - word: Palabra a convertir
+    """
+
+    _template = '<prosody contour="{d.contour}">{word}</prosody>'
+
+    def __init__(self, contour):
+        if len(contour) > 5:
+            raise SystemExit("error: No puede haber más de cinco puntos de entonación")
+        self.contour = " ".join(f"({x}%,{y:+}%)" for x, y in contour)
+
+    def __format__(self, word):
+        return self._template.format(d=self, word=word)
