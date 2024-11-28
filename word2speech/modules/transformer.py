@@ -2,7 +2,7 @@ import requests
 from requests.exceptions import HTTPError
 
 
-from modules.utilities import Contour
+from .utilities import Contour
 
 
 def send_request(url, data):

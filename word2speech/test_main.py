@@ -1,4 +1,4 @@
-from main import set_config
+from word2speech.main import set_config
 
 
 def test_set_config():
