@@ -160,16 +160,16 @@ def main():
                 for word in words:
                     file_name = norm.normalize(word)
                     log.info(f'Generando el audio de la palabra "{word}"')
-                    audio, file_format, cost = speech.convert(word)
+                    audio, file_format, cost, balans = speech.convert(word)
                     log.info(
-                        f'Audio generado "{file_name}.{file_format}" (coste: {cost})'
+                        f'Audio generado "{dirname}/{file_name}.{file_format}" (coste: {cost}, saldo: {balans})'
                     )
                     save_audio(f"{dirname}/{file_name}.{file_format}", audio)
         else:
             file_name = args.outfile
             log.info(f'Generando el audio de la palabra "{args.word}"')
-            audio, file_format, cost = speech.convert(args.word)
-            log.info(f'Audio generado "{file_name}.{file_format}" (coste: {cost})')
+            audio, file_format, cost, balans = speech.convert(args.word)
+            log.info(f'Audio generado "{file_name}.{file_format}" (coste: {cost}, saldo: {balans})')
             save_audio(f"{file_name}.{file_format}", audio)
     except HTTPError as error:
         raise SystemExit(error.args[0])

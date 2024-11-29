@@ -4,3 +4,7 @@ config.yml
 # Ignoramos los directorios de las palabras tranformadas
 palabras
 nopalabras
+# Ignoramos los audio generados
+*.mp3
+*.wav
+*.ogg

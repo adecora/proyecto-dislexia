@@ -33,7 +33,7 @@ class Word2Speech:
                 file_url = response["file"]
                 file_format = response["format"]
                 audio = requests.get(file_url).content
-                return (audio, file_format, response["cost"])
+                return (audio, file_format, response["cost"], response["balans"])
             else:
                 raise HTTPError(f"404 Not Found: {response['error']}")
         else:
