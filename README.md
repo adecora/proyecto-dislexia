@@ -8,9 +8,13 @@ Un proyecto de Alejandro Varela de Cora.
 
 El código necesario para recontruir el entorno software esta descrito en el fichero [environment.yml](./environment.yml). Se puede instalar usando [miniconda](https://docs.anaconda.com/miniconda):
 
-
 ```shell
 $ conda env create -f environment.yml
+```
+Para entornos windows replicamos el entorno ejecutando el fichero [windows-env.yml](./windows-env.yml):
+
+```cmd
+> conda env create -f windows-env.yml
 ```
 
 El paquete `word2speech` es una [herramienta CLI](https://es.wikipedia.org/wiki/Interfaz_de_l%C3%ADnea_de_comandos) para convertir palabras en audios, para poder empezar a utlizarla es necesario clonar el repositorio:
@@ -72,6 +76,12 @@ Para reprocesar los ficheros originales XLSX, y convertirlos a su versión CSV:
 
 ```shell
 $ ./bin/convert.sh
+```
+
+Si estamos en windows tenemos que ejecutar el `batch file` equivalente:
+
+```cmd
+>.\bin\convert.bat
 ```
 
 Después, corre el programa que los toma y emite por `stdout` la estructura de datos JSON resultante:

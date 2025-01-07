@@ -2,7 +2,7 @@ import csv
 
 
 def parse_file(file):
-    with open(file) as fd:
+    with open(file, encoding="utf-8") as fd:
         reader = csv.reader(fd)
         # Omitimos las cabeceras del fichero de palabras
         next(reader)

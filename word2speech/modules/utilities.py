@@ -62,7 +62,7 @@ def is_valid_file_word(arg):
     con la estructura correcta.
     """
     if os.path.isfile(arg):
-        with open(arg) as f:
+        with open(arg, encoding="utf-8") as f:
             try:
                 words = json.load(f)
                 for value in words.values():
