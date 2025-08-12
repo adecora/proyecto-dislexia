@@ -1,6 +1,6 @@
-# Proyecto dislexia 
+# Proyecto dislexia
 
-Genera audios a partir de palabras (reales o falsas), para que puedan ser utilizadas en un estudio sobre la dislexia.
+Genera audios a partir de palabras (reales o falsas), para el tratamiento de pacientes con dislexia u otras dificultades específicas de aprendizaje.
 
 Un proyecto de Alejandro Varela de Cora.
 
@@ -30,42 +30,45 @@ $ conda activate proyecto
 
 # Ahora podemor usar el paquete python word2speech
 $ python -m word2speech --help
-usage: __main__.py [-h] [--config config.yml] [--token 12345]
-                   [--email user@domain.com] [--voice Alvaro]
-                   [--format {ogg,wav,mp3}] [--speed default: 1.0]
-                   [--pitch default: 0] [--emotion {good,neutral,evil}]
-                   [--bitrate default: 48000] [--contour x,y]
-                   [--outfile fichero]
+usage: __main__.py [-h] [--config config.yml] [--token 12345] [--email user@domain.com] [--voice Alvaro]
+                   [--format {wav,mp3,ogg}] [--speed default: 1.0] [--pitch default: 0] [--emotion {evil,good,neutral}]
+                   [--bitrate default: 48000] [--contour x,y] [--outfile fichero]
                    palabra/fichero
 
 Herramienta de línea de comandos para transformar palabras
 o ficheros (json) en audios.
 
-Argumentos posicionales:
+positional arguments:
   palabra/fichero       Palabra/fichero a convertir
 
-Argumentos opcionales:
-  -h, --help            Muestra este mensaje de ayuda y sale.
+options:
+  -h, --help            show this help message and exit
   --config config.yml   Archivo de configuración YAML
   --token 12345         Token de autentificación
   --email user@domain.com
                         Correo electrónico
   --voice Alvaro        Voz a utilizar
-  --format {ogg,wav,mp3}
+  --format {wav,mp3,ogg}
                         Formato del fichero resultante (default: mp3)
   --speed default: 1.0  Velocidad de reproducción (rango de 0.1 a 2.0)
   --pitch default: 0    Tono de voz (rango de -20 a 20)
-  --emotion {good,neutral,evil}
+  --emotion {evil,good,neutral}
                         Emoción de la voz (default: neutral)
   --bitrate default: 48000
                         Tasa de muestreo (rango de 8000 a 192000 Hz)
   --contour x,y, -c x,y
-                        
+
                         Detalle de entonación de la palabra, se pueden escoger hasta 5 puntos.
                             x - Porcentaje de duración de la palabra (0 a 100)
                             y - Procentaje de entonación (-100 a 100)
   --outfile fichero, -o fichero
                         Guarda el audio con el nombre fichero
+
+Comandos especiales disponibles:
+  deletrear             Deletrea palabras (sílaba por sílaba) y genera audio
+                        Uso: python -m word2speech deletrear palabra [opciones]
+  prosodia              Genera audio con prosodia mejorada usando SSML e IPA
+                        Uso: python -m word2speech prosodia palabra [opciones]
 ```
 
 ### Reconstrucción de los datos
@@ -100,7 +103,7 @@ $ cat data-reduce.json
     "babados",
     "bacela",
     "plátaco"
-  ] 
+  ]
 }
 ```
 
@@ -140,3 +143,51 @@ $ python -m word2speech --config config-example.yml data-reduce.json
 [14:50:48]: Generando el audio de la palabra "plátaco"
 [14:50:49]: Audio generado "nopalabras/plataco.mp3" (coste: 0, saldo: 64305)
 ```
+
+Si renombramos [config-example.yml](./config-example.yml) a **config.yml**, `word2speech` lo busca en el path y lo lee, sin necesida de usa el flag `--config` en cada uso.
+
+```shell
+$ python -m word2speech palabra
+[17:19:25]: Generando el audio de la palabra "palabra"
+[17:19:26]: Audio generado "out.mp3" (coste: 7, saldo: 61705)
+
+$ python -m word2speech data-reduce.json
+[17:19:40]: Generando el audio de la palabra "abrazo"
+[17:19:40]: Audio generado "palabras/abrazo.mp3" (coste: 0, saldo: 61705)
+[17:19:40]: Generando el audio de la palabra "bebida"
+[17:19:40]: Audio generado "palabras/bebida.mp3" (coste: 0, saldo: 61705)
+[17:19:41]: Generando el audio de la palabra "órganos"
+[17:19:41]: Audio generado "palabras/organos.mp3" (coste: 0, saldo: 61705)
+[17:19:41]: Generando el audio de la palabra "babados"
+[17:19:41]: Audio generado "nopalabras/babados.mp3" (coste: 0, saldo: 61705)
+[17:19:41]: Generando el audio de la palabra "bacela"
+[17:19:42]: Audio generado "nopalabras/bacela.mp3" (coste: 0, saldo: 61705)
+[17:19:42]: Generando el audio de la palabra "plátaco"
+[17:19:42]: Audio generado "nopalabras/plataco.mp3" (coste: 0, saldo: 61705)
+```
+
+#### Uso de subcomandos
+
+`word2speech` tiene disponibles 2 subcomandos, `deletrear` y `prosodia`:
+
+- `deletrear`: Genera el audio de una palabra sílaba por sílaba
+  ```shell
+  $ python -m word2speech deletrear albaricoque
+  [17:29:09]: Generando audio deletreado por sílabas de la palabra "albaricoque"
+  [17:29:09]: Texto deletreado: al <break time="250ms"/> ba <break time="250ms"/> ri <break time="250ms"/> co <break time="250ms"/> que
+  [17:29:13]: Audio deletreado generado "out_deletreo.mp3" (coste: 95, saldo: 61610)
+
+  # El flag --include-word añade la palabra deletreada al final de audio
+  $ python -m word2speech deletrear albaricoque --include-word
+  [17:30:51]: Generando audio deletreado por sílabas de la palabra "albaricoque"
+  [17:30:51]: Texto deletreado: al <break time="250ms"/> ba <break time="250ms"/> ri <break time="250ms"/> co <break time="250ms"/> que <break time="1s"/> albaricoque
+  [17:30:53]: Audio deletreado generado "out_deletreo.mp3" (coste: 124, saldo: 61486)
+  ```
+- `prodosia`: Genera una versión de la palabra con mayor énfasis en la prosodia de la misma mediante el uso de [SSML](https://www.w3.org/TR/speech-synthesis/) para enriquecer la palabra y la trancripción fonética IPA.
+  ```shell
+  $ python -m word2speech prosodia albaricoque
+  [17:35:20]: IPA generado con epitran para 'albaricoque': albaɾikoke
+  [17:35:20]: Generando audio con prosodia mejorada de la palabra "albaricoque"
+  [17:35:20]: SSML generado: <prosody rate="medium" pitch="medium" volume="medium"><phoneme alphabet="ipa" ph="albaɾikoke">albaricoque</phoneme></prosody>
+  [17:35:21]: Audio con prosodia generado "out_prosodia.mp3" (coste: 125, saldo: 61361)
+  ```

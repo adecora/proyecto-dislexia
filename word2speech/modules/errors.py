@@ -1,4 +1,4 @@
-""" "
+"""
 Definimos errores personalizados para la valdación del fichero de configuración.
 """
 
