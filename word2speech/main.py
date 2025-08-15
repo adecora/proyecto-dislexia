@@ -22,6 +22,7 @@ from .modules import (
     IPAError,
     Normalizer,
     Word2Speech,
+    create_config,
     is_valid_file_word,
     load_config,
     spell_word,
@@ -348,6 +349,8 @@ def main():
         stream=sys.stdout,
         force=True,
     )
+    # Crea el fichero de configuración global del usuario si no existe
+    create_config()
 
     args = parse_arguments()
     # Procesar configuración común
