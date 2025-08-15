@@ -23,6 +23,7 @@ from .modules import (
     Normalizer,
     Word2Speech,
     is_valid_file_word,
+    load_config,
     spell_word,
     ssml_for_word,
     validate_bitrate,
@@ -58,7 +59,7 @@ def parse_arguments():
     # Primero comprobamos los subcomandos
     if len(sys.argv) > 1 and sys.argv[1] == "deletrear":
         parser = argparse.ArgumentParser(
-            prog="python -m word2speech deletrear",
+            prog="word2speech deletrear",
             description="Genera audio deletreando palabras sílaba por sílaba con pausas entre cada sílaba",
             formatter_class=argparse.RawTextHelpFormatter,
         )
@@ -145,7 +146,7 @@ Detalle de entonación de la palabra, se pueden escoger hasta 5 puntos.
 
     elif len(sys.argv) > 1 and sys.argv[1] == "prosodia":
         parser = argparse.ArgumentParser(
-            prog="python -m word2speech prosodia",
+            prog="word2speech prosodia",
             description="Genera audio con prosodia mejorada usando SSML y transcripción fonética IPA",
             formatter_class=argparse.RawTextHelpFormatter,
         )
@@ -204,6 +205,7 @@ Detalle de entonación de la palabra, se pueden escoger hasta 5 puntos.
     else:
         # Parser para funcionalidad original
         parser = argparse.ArgumentParser(
+            prog="word2speech",
             description=__doc__,
             formatter_class=argparse.RawTextHelpFormatter,
             epilog="""
@@ -352,16 +354,19 @@ def main():
     config = {}
     if hasattr(args, "config") and args.config:
         config = set_config(args.config)
-    elif BASE_PATH.joinpath("config.yml").is_file():
-        # Si existe un fichero config.yml en el path del proyecto lo carga
-        with open("config.yml", "r") as fd:
-            config = set_config(fd)
+    else:
+        # Intentamos cargar la configuración local del proyecto o glabal del usuario si exiten
+        config = load_config(log)
 
     # Aplicar argumentos de línea de comandos
     if hasattr(args, "token") and args.token:
         config.update({"token": args.token})
+    elif "token" not in config:
+        raise SystemError("Es obligatorio proporcionar un token válido.")
     if hasattr(args, "email") and args.email:
         config.update({"email": args.email})
+    elif "email" not in config:
+        raise SystemError("Es obligatorio proporcionar un email válido.")
     if hasattr(args, "voice") and args.voice:
         config.update({"voice": args.voice})
     if hasattr(args, "format") and args.format:

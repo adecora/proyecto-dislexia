@@ -144,7 +144,9 @@ $ python -m word2speech --config config-example.yml data-reduce.json
 [14:50:49]: Audio generado "nopalabras/plataco.mp3" (coste: 0, saldo: 64305)
 ```
 
-Si renombramos [config-example.yml](./config-example.yml) a **config.yml**, `word2speech` lo busca en el path y lo lee, sin necesida de usa el flag `--config` en cada uso.
+Si no proporcionamos un fichero de configuración mediante el flag `--config`, la aplicación busca automáticamente primero en la configuración local del proyecto `./.word2speech/config.yml` y después en la configuración global del usuario `~/.word2speech/config.yml`.
+
+Si no encuentra ningún archivo, los parámetros obligatorios (token, email, voice) deben proporcionarse por línea de comandos.
 
 ```shell
 $ python -m word2speech palabra

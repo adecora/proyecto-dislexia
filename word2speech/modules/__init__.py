@@ -9,6 +9,7 @@ from .errors import (
     PitchError,
     SpeedError,
 )
+from .load_config import create_config, load_config
 from .prosodia import IPAError, ssml_for_word
 from .transformer import Word2Speech
 from .utilities import (
@@ -35,6 +36,8 @@ __all__ = [
     "Word2Speech",
     "Normalizer",
     "Contour",
+    "create_config",
+    "load_config",
     "spell_word",
     "ssml_for_word",
     "is_valid_file_word",

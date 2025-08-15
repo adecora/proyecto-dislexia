@@ -1,6 +1,6 @@
 # Parámetros obligatorios.
-token: 12345
-email: user@domain.com
+token: "tu_token"
+email: "tu_email@domain.com"
 voice: Alvaro
 
 # Parámetros opcionales.
