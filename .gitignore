@@ -8,3 +8,6 @@ nopalabras
 *.mp3
 *.wav
 *.ogg
+
+build
+*.egg-info

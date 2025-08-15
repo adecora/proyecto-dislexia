@@ -7,7 +7,11 @@ o ficheros (json) en audios.
 import argparse
 import logging
 import sys
+import warnings
 from pathlib import Path
+
+# Silenciamos el warning de epitran
+warnings.filterwarnings("ignore", category=UserWarning, module="epitran")
 
 import yaml
 from requests.exceptions import HTTPError
