@@ -26,4 +26,4 @@ Repository = "https://github.com/adecora/proyecto-dislexia"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["word2speech"]
+include = ["word2speech*"]
