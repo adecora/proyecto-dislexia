@@ -191,3 +191,51 @@ $ python -m word2speech data-reduce.json
   [17:35:20]: SSML generado: <prosody rate="medium" pitch="medium" volume="medium"><phoneme alphabet="ipa" ph="albaɾikoke">albaricoque</phoneme></prosody>
   [17:35:21]: Audio con prosodia generado "out_prosodia.mp3" (coste: 125, saldo: 61361)
   ```
+
+
+### Instalar como comando
+
+Se ha empaquetado para que pueda instalarse como un comando invocando directamente `word2speech` para instalarlo se recomienda usar [`pipx`](https://pipx.pypa.io/stable/).
+
+```shell
+$ pipx install git+https://github.com/adecora/proyecto-dislexia.git
+$ pipx list
+venvs are in /home/cora/.local/share/pipx/venvs
+apps are exposed on your $PATH at /home/cora/.local/bin
+manual pages are exposed at /home/cora/.local/share/man
+   package word2speech 1.0.0, installed using Python 3.12.11
+    - word2speech
+```
+
+Una vez instalado ya puedo invocar direcatmente a `word2speech`
+
+``shell
+$ word2speech --config config.yml albaricoque
+[20:45:51]: Generando el audio de la palabra "albaricoque"
+[20:45:52]: Audio generado "out.mp3" (coste: 11, saldo: 61125)
+$ word2speech deletrear --config config.yml --include-word albaricoque
+[20:46:08]: Generando audio deletreado por sílabas de la palabra "albaricoque"
+[20:46:08]: Texto deletreado: al <break time="250ms"/> ba <break time="250ms"/> ri <break time="250ms"/> co <break time="250ms"/> que <break time="1s"/> albaricoque
+[20:46:12]: Audio deletreado generado "out_deletreo.mp3" (coste: 0, saldo: 61125)
+$ word2speech prosodia --config config.yml albaricoque
+[20:46:30]: IPA generado con epitran para 'albaricoque': albaɾikoke
+[20:46:30]: Generando audio con prosodia mejorada de la palabra "albaricoque"
+[20:46:30]: SSML generado: <prosody rate="medium" pitch="medium" volume="medium"><phoneme alphabet="ipa" ph="albaɾikoke">albaricoque</phoneme></prosody>
+[20:46:30]: Audio con prosodia generado "out_prosodia.mp3" (coste: 0, saldo: 61125)
+```
+
+#### Limitación windows
+
+En Windows debido a la codificación de la consola por defecto pueden surgir problemas a la hora de ejecutar el subcomando `prosodia`, la solución pasa por forzar la codificación `UTF-8`
+
+```cmd
+> set PYTHONUTF8=1
+```
+
+Podemos establecer la codificación `UTF-8` de forma permanente con:
+
+```cmd
+> setx PYTHONUTF8 1
+```
+
+> **Nota**: Después de ejecutar `setx`, es necesario reiniciar la terminal (o abrir una nueva) para que el cambio tome efecto.

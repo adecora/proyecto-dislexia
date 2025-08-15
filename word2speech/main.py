@@ -339,10 +339,6 @@ def prosodia_audio(args, config):
 
 def main():
     """Ejecuta el programa de línea de comandos."""
-    # Configuración para que funcione el subcomando `prosodia` en Windows
-    if platform.system() == "Windows":
-        os.environ.setdefault("PYTHONUTF8", "1")
-
     logging.basicConfig(
         level=logging.INFO,
         format="[%(asctime)s]: %(message)s",
