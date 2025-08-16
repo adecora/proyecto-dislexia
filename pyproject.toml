@@ -4,17 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "word2speech"
-version = "1.0.0"
+version = "1.0.1"
 description = "Herramienta CLI para transformar palabras en audios para tratamiento de dislexia"
 authors = [{name = "Alejandro Varela de Cora"}]
 readme = "README.md"
 license = "GPL-3.0-only"
 requires-python = ">=3.12"
 dependencies = [
-  "PyYAML==6.0.2",
-  "requests==2.32.3",
-  "pyphen==0.17.2",
-  "epitran==1.26.0"
+  "PyYAML>=6.0.0",
+  "requests>=2.32.0",
+  "pyphen>=0.17.0",
+  "epitran>=1.26.0"
 ]
 
 [project.scripts]
