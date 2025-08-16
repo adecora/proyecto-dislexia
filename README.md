@@ -185,7 +185,7 @@ $ python -m word2speech data-reduce.json
   [17:30:51]: Texto deletreado: al <break time="250ms"/> ba <break time="250ms"/> ri <break time="250ms"/> co <break time="250ms"/> que <break time="1s"/> albaricoque
   [17:30:53]: Audio deletreado generado "out_deletreo.mp3" (coste: 124, saldo: 61486)
   ```
-- `prodosia`: Genera una versión de la palabra con mayor énfasis en la prosodia de la misma mediante el uso de [SSML](https://www.w3.org/TR/speech-synthesis/) para enriquecer la palabra y la trancripción fonética IPA.
+- `prosodia`: Genera una versión de la palabra con mayor énfasis en la prosodia de la misma mediante el uso de [SSML](https://www.w3.org/TR/speech-synthesis/) para enriquecer la palabra y la trancripción fonética IPA.
   ```shell
   $ python -m word2speech prosodia albaricoque
   [17:35:20]: IPA generado con epitran para 'albaricoque': albaɾikoke
