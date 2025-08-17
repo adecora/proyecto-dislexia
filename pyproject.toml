@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "word2speech"
-version = "1.0.1"
+version = "1.0.2"
 description = "Herramienta CLI para transformar palabras en audios para tratamiento de dislexia"
 authors = [{name = "Alejandro Varela de Cora"}]
 readme = "README.md"
