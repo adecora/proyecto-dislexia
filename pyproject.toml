@@ -13,7 +13,7 @@ requires-python = ">=3.12"
 dependencies = [
   "PyYAML>=6.0.0",
   "requests>=2.32.0",
-  "pyphen>=0.17.0",
+  "silabeador>=1.2.1",
   "epitran>=1.26.0"
 ]
 

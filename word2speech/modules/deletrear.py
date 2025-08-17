@@ -1,14 +1,11 @@
-import pyphen
+from silabeador import syllabify
 
 
 def spell_word(word, pause_duration=250):
     """Convierte una palabra en texto deletreado por sílabas con pausas."""
-    dic = pyphen.Pyphen(lang="es_ES")
+    silabas = syllabify(word.lower())
 
-    silabas_texto = dic.inserted(word.lower())
-    silabas = silabas_texto.split("-")
-
-    if len(silabas) == 1 and "-" not in silabas_texto:
+    if len(silabas) == 1:
         return word.lower()
 
     deletreado = []

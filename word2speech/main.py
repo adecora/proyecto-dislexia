@@ -93,7 +93,7 @@ def parse_arguments():
         )
         parser.add_argument(
             "--pause",
-            metavar="default: 500ms",
+            metavar="default: 250ms",
             type=int,
             default=250,
             help="Duración de la pausa entre sílabas en segundos (default: 250ms)",
@@ -106,7 +106,8 @@ def parse_arguments():
         )
         parser.add_argument(
             "--pitch",
-            metavar="default: 0",
+            metavar="default: -5",
+            default=-5,
             type=validate_pitch,
             help="Tono de voz (rango de -20 a 20)",
         )

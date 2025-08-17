@@ -1,4 +1,4 @@
 PyYAML==6.0.2
 requests==2.32.3
-pyphen==0.17.2
+silabeador==1.2.1
 epitran==1.26.0
