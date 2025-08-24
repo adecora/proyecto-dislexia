@@ -51,7 +51,7 @@ class SpeechGenModel(TTSModel):
             "contour": True,
             "offline": False,
         }
-        return supported_features
+        return supported_features.get(feature, False)
 
     def _build_params(self, text, **kwargs):
         model_config = config.get_model_config(self.model_id)

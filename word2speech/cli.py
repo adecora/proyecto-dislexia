@@ -6,12 +6,12 @@ conciencia en dificultades específicas del aprendizaje.
 
 import logging
 import sys
+from pathlib import Path
 
 import click
 
 from .config import config
 from .models import registry
-from .modules import Word2Speech
 from .plugins import discover_models
 
 log = logging.getLogger(__name__)
@@ -47,7 +47,10 @@ def cli(ctx, version, verbose):
 @click.option("--speed", type=float, help="Velocidad del habla: 0.1-2.0 (default: 1.0)")
 @click.option("--pitch", help="Tono: low/normal/high or -20 to 20 (default: 0)")
 @click.option("--emotion", help="Emoción: calm/energetic/neutral (default: neutral)")
-def speak(text, model, output, voice, speed, pitch, emotion):
+@click.option(
+    "--contour", "-c", multiple=True, metavar="tiempo,tono", help="Detalle de entonación. timepo %% duración (0-100), tono %% entonación (-100 a 100)"
+)
+def speak(text, model, output, voice, speed, pitch, emotion, contour):
     """
     Generar voz a partir de texto usando modelos TTS.
 
@@ -75,9 +78,11 @@ def speak(text, model, output, voice, speed, pitch, emotion):
         options["pitch"] = pitch
     if emotion:
         options["emotion"] = emotion
+    if contour:
+        options["contour"] = contour
 
     try:
-        log.info(f'Generando audio: "{text}"')
+        log.info(f'Generando audio para: "{text}"')
         audio, file_format, cost, balance = tts_model.generate(text, **options)
 
         output_file = f"{output}.{file_format}"
@@ -103,6 +108,10 @@ def spell(word, model, output, pause, include_word):
     if not tts_model:
         click.echo(f"Moldelo '{model}' no encontrado.", err=True)
         click.echo("Usa 'word2speech models' para ver los modelos disponibles.", err=True)
+        sys.exit(1)
+
+    if not tts_model.supports("ssml"):
+        click.echo(f"El modelo '{model}' no soporta deletreo (requiere SSML)", err=True)
         sys.exit(1)
 
     from .modules.deletrear import spell_word
@@ -143,11 +152,17 @@ def prosody(word, model, output, rate, pitch_level, volume):
         click.echo("Usa 'word2speech models' para ver los modelos disponibles.", err=True)
         sys.exit(1)
 
+    if not tts_model.supports("ssml"):
+        click.echo(f"El modelo '{model}' no soporta prosodia mejorada (requiere SSML)", err=True)
+        sys.exit(1)
+
     from .modules.prosodia import ssml_for_word
 
     try:
         ssml_text, ssml_log = ssml_for_word(word, rate=rate, pitch=pitch_level, volume=volume)
 
+        if ssml_log:
+            log.info(ssml_log)
         log.info(f'Generando audio enriquecido con prosodia: "{word}"')
         log.info(f"SSML: {ssml_text}")
 
@@ -165,17 +180,12 @@ def prosody(word, model, output, rate, pitch_level, volume):
 
 
 @cli.command()
-@click.argument("model_name", required=False)
-def models(model_name):
+def models():
     """Lista los models TTS disponibles o muestra información detallada de un modelo."""
     available_models = registry.list_models()
     if not available_models:
         click.echo("No hay modelos TTS disponibles.")
         return
-
-    # Muestra información detallada de un modelo
-    if model_name:
-        pass
 
     # Lista todos los modelos diponibles:
     click.echo("Modelos TTS disponibles:\n")
@@ -184,15 +194,29 @@ def models(model_name):
         aliases = ", ".join(k for k, v in registry._aliases.items() if v is model.model_id)
 
         if aliases:
-            click.echo(f"• {model.model_id} ({aliases})")
+            click.echo(f"{model.model_id} ({aliases})")
         else:
-            click.echo(f"• {model.model_id}")
+            click.echo(f"{model.model_id}")
+
+        # Extras por modelo
+        capabilities = [
+            ("Soporte SSML", "ssml"),
+            ("Múltiples voces", "voices"),
+            ("Puntos de contorno", "contour"),
+            ("Offline", "offline"),
+        ]
+        for desc, feature in capabilities:
+            status = "✅" if model.supports(feature) else "❌"
+            click.echo(f"  {status} {desc}")
 
         # Ejemplos de uso
         if model.model_id == "speechgen.io":
             click.echo('  Uso: word2speech speak "text" --voice Alvaro --emotion good')
             click.echo("  Setup: word2speech keys set speechgen TU_TOKEN")
             click.echo("  Setup: word2speech keys set speechgen-email TU_EMAIL")
+        elif "parler" in model.model_id.lower():
+            click.echo(f'  Uso: word2speech speak "text" -m {model.model_id} --voice female --emotion calm')
+        click.echo("")
 
 
 @cli.group()
@@ -234,6 +258,46 @@ def keys_list():
     click.echo("Claves API configuradas:")
     for provider, masked_key in keys_dict.items():
         click.echo(f"  {provider}: {masked_key}")
+
+
+@cli.command()
+@click.argument("json_file", type=click.Path(exists=True))
+@click.option("-m", "--model", default="speechgen.io", help="Modelo TTS a usar (default: speechgen.io)")
+def batch(json_file, model):
+    """Genera audio de palabras/pseudoplabras de un fichero JSON."""
+    import json
+
+    from .modules.utilities import normalizer
+
+    tts_model = registry.get(model)
+    if not tts_model:
+        click.echo(f"Moldelo '{model}' no encontrado.", err=True)
+        click.echo("Usa 'word2speech models' para ver los modelos disponibles.", err=True)
+        sys.exit(1)
+
+    # Leemos el fichero
+    with open(json_file, "r", encoding="utf8") as fd:
+        data = json.load(fd)
+
+    for category, word_list in data.items():
+        # No lanza excepción si el directorio ya existe
+        Path(category).mkdir(parents=True, exist_ok=True)
+
+        for word in word_list:
+            try:
+                filename = normalizer.normalize(word)
+                log.info(f'Generando audio para: "{word}"')
+
+                audio, file_format, cost, balance = tts_model.generate(word)
+                output_file = f"{category}/{filename}.{file_format}"
+
+                with open(output_file, "wb") as f:
+                    f.write(audio)
+
+                log.info(f'Audio generado "{output_file}" (coste: {cost}, saldo: {balance})')
+
+            except Exception as e:
+                click.echo(f"Error generando audio para: {e}", err=True)
 
 
 if __name__ == "__main__":

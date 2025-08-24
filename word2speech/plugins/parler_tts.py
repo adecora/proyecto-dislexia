@@ -9,8 +9,6 @@ from ..config import config
 from ..models import TTSModel
 
 try:
-    import numpy as np
-    import scipy.io.wavfile as wavfile
     import soundfile as sf
     import torch
     from parler_tts import ParlerTTSForConditionalGeneration
@@ -80,7 +78,7 @@ class ParlerModel(TTSModel):
         # Guardamos en un buffer y leemos los bytes
         buffer = BytesIO()
         sf.write(buffer, audio_arr, self.model.config.sampling_rate, format="WAV")
-        buffer.seek(0)  # Salvaguarda incio del audio
+        buffer.seek(0)  # Salvaguarda incio del audio·
         audio_bytes = buffer.read()
 
         return (audio_bytes, "wav", 0, 0)
@@ -93,7 +91,7 @@ class ParlerModel(TTSModel):
             "contour": False,
             "offline": True,
         }
-        return supported_features
+        return supported_features.get(feature, False)
 
     def _build_voice_description(self, **kwargs):
         """Construye la descripción de la voz para Parler-TTS."""

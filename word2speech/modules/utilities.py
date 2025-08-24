@@ -1,18 +1,17 @@
-import unicodedata
-import sys
-import re
-import os.path
 import json
+import os.path
+import re
+import sys
+import unicodedata
 from argparse import ArgumentTypeError
 
-
 from .errors import (
-    FormatError,
-    SpeedError,
-    PitchError,
-    EmotionError,
     BitrateError,
     ContourError,
+    EmotionError,
+    FormatError,
+    PitchError,
+    SpeedError,
 )
 
 
@@ -23,11 +22,7 @@ class Normalizer:
     """
 
     def __init__(self):
-        self.cmb_chrs = dict.fromkeys(
-            c
-            for c in range(sys.maxunicode)
-            if unicodedata.combining(chr(c)) and c not in (0x0303, 0x0327)
-        )
+        self.cmb_chrs = dict.fromkeys(c for c in range(sys.maxunicode) if unicodedata.combining(chr(c)) and c not in (0x0303, 0x0327))
 
     def normalize(self, word):
         s = word.lower()
@@ -35,6 +30,10 @@ class Normalizer:
         b = a.translate(self.cmb_chrs)
         re.sub("[^a-z0-9ñç]", "", b)
         return b
+
+
+# Instanciamos la clase
+normalizer = Normalizer()
 
 
 class Contour:
@@ -50,7 +49,17 @@ class Contour:
     def __init__(self, contour):
         if len(contour) > 5:
             raise SystemExit("error: No puede haber más de cinco puntos de entonación")
-        self.contour = " ".join(f"({x}%,{y:+}%)" for x, y in contour)
+        contour_list = []
+        for point in contour:
+            time, pitch = point.split(",")
+            try:
+                time = int(time)
+                pitch = int(pitch)
+                contour_list.append(f"({time}%,{pitch:+}%)")
+            except ValueError:
+                pass
+
+        self.contour = " ".join(contour_list)
 
     def __format__(self, word):
         return self._template.format(d=self, word=word)
@@ -67,14 +76,10 @@ def is_valid_file_word(arg):
                 words = json.load(f)
                 for value in words.values():
                     if not isinstance(value, list):
-                        raise ArgumentTypeError(
-                            "La estructura del fichero es incorrecta."
-                        )
+                        raise ArgumentTypeError("La estructura del fichero es incorrecta.")
                 return words
             except json.JSONDecodeError as error:
-                raise ArgumentTypeError(
-                    "El formato del fichero es incorrecto."
-                ) from error
+                raise ArgumentTypeError("El formato del fichero es incorrecto.") from error
     else:
         return arg
 
@@ -107,9 +112,7 @@ def validate_pitch(pitch, Error=ArgumentTypeError):
 
 def validate_emotion(emotion, Error=ArgumentTypeError):
     if emotion not in ("evil", "good", "neutral"):
-        raise Error(
-            f"Opción invalida: '{emotion}' (escoge entre 'evil', 'good', 'neutral')"
-        )
+        raise Error(f"Opción invalida: '{emotion}' (escoge entre 'evil', 'good', 'neutral')")
     return emotion
 
 
@@ -124,14 +127,13 @@ def validate_bitrate(bitrate, Error=ArgumentTypeError):
 
 
 def validate_contour_point(point, Error=ArgumentTypeError):
+    print(point)
     try:
         time, pitch = [int(p) for p in point.split(",")]
         if not 0 <= time <= 100:
             raise Error(f"Porcentaje tiempo invalido: {time} (rango entre 0 y 100)")
         if not -100 <= pitch <= 100:
-            raise Error(
-                f"Porcentaje entonación invalido: {pitch} (rango entre -100 y 100)"
-            )
+            raise Error(f"Porcentaje entonación invalido: {pitch} (rango entre -100 y 100)")
         return time, pitch
     except ValueError:
         raise Error(f"Valor de tipo int inválido: {point}")
