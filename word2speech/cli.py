@@ -9,7 +9,8 @@ import sys
 
 import click
 
-from .modules import Word2Speech, load_config
+from .config import config
+from .modules import Word2Speech
 
 log = logging.getLogger(__name__)
 
@@ -50,7 +51,8 @@ def speak(text, output, voice, speed, pitch, emotion, audio_format):
         word2speech speak "hola mundo"
         word2speech speak "hola" --voice female --speed 1.2 --emotion calm
     """
-    options = load_config()
+    options = config.get_model_config("speechgen.io")
+    print(options)
     # TODO: Audio de salida siempre va ser formato wav
     options["format"] = "wav"
     if voice:
@@ -95,7 +97,7 @@ def spell(word, output, pause, include_word):
         log.info(f'Generando deletreo de sílabas: "{word}"')
         log.info(f"Texto deletreado: {spelled_text}")
 
-        options = load_config()
+        options = config.get_model_config("speechgen.io")
         speech = Word2Speech(options)
         audio, file_format, cost, balance = speech.convert(spelled_text)
         output_file = f"{output}.{file_format}"
@@ -126,7 +128,7 @@ def prosody(word, output, rate, pitch_level, volume):
         log.info(f'Generando audio enriquecido con prosodia: "{word}"')
         log.info(f"SSML: {ssml_text}")
 
-        options = load_config()
+        options = config.get_model_config("speechgen.io")
         speech = Word2Speech(options)
         audio, file_format, cost, balance = speech.convert(ssml_text)
         output_file = f"{output}.{file_format}"

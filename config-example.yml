@@ -1,38 +1,9 @@
-# Parámetros obligatorios.
-token: "tu_token"
-email: "tu_email@domain.com"
-voice: Alvaro
+keys:
+  speechgen: "tu_token"
+  speechgen-email: "tu_email@domain.com"
 
-# Parámetros opcionales.
-# Formato del fichero resultante, default=mp3.
-# (mp3, wav, ogg)
-# format: mp3
-
-# Velocidad de reproducción, default=1.
-# (rango de 0.1 a 2.0)
-# speed: 1
-
-# Tono de voz, default=0.
-# (rango de -20 a 20)
-# pitch: 0
-
-# Emoción de la voz, default=good.
-# (good, evil, neutral)
-# emotion: good
-
-# Tiempo de pausa entre frases.
-# pause_sentence: 300
-
-# Tiempo de pausa entre párrafos.
-# pause_paragraph: 400
-
-# Tasa de muestro.
-# (rango de 8000 a 192000 Hz)
-# bitrate: 48000
-
-# Detalle de entonación de la palabra, se pueden escoger hasta 5 puntos.
-#     x - Porcentaje de duración de la palabra (0 a 100)
-#     y - Procentaje de entonación (-100 a 100)
-# contour:
-#   - 100,50 # punto1
-#   - 40,-20 # punto2
+models:
+  speechgen.io:
+    voice: "Alvaro"
+    speed: 1.0
+    emotion: "good"

@@ -9,7 +9,6 @@ from .errors import (
     PitchError,
     SpeedError,
 )
-from .load_config import create_config, load_config
 from .prosodia import IPAError, ssml_for_word
 from .transformer import Word2Speech
 from .utilities import (
