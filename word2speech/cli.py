@@ -216,6 +216,9 @@ def models():
             click.echo("  Setup: word2speech keys set speechgen-email TU_EMAIL")
         elif "parler" in model.model_id.lower():
             click.echo(f'  Uso: word2speech speak "text" -m {model.model_id} --voice female --emotion calm')
+        elif "mms" in model.model_id.lower():
+            click.echo(f'  Uso: word2speech speak "text" -m {model.model_id} --speed 1.2')
+
         click.echo("")
 
 
@@ -298,6 +301,28 @@ def batch(json_file, model):
 
             except Exception as e:
                 click.echo(f"Error generando audio para: {e}", err=True)
+
+
+@cli.command()
+def cheat():
+    """Guía rápida de opciones comunes."""
+    click.echo("Word2Speech Guía Rápida")
+    click.echo("═" * 23)
+
+    click.echo("\n Inicio:")
+    click.echo('   word2speech speak "text"                    # Audio básico')
+    click.echo("   word2speech keys set speechgen YOUR_TOKEN   # Setup API")
+
+    click.echo("\n Opciones universales (funcionan en TODOS los modelos):")
+    click.echo("    --speed 0.1-2.0      -m model_name       -o filename")
+
+    click.echo("\n Otras options (sólo funcionan con ALGUNOS modelos):")
+    click.echo("   --voice female/male/name            # ✅ speechgen, parler  ❌ mms")
+    click.echo("   --pitch low/normal/high/-20-20      # ✅ speechgen, parler  ❌ mms")
+    click.echo("   --emotion calm/energetic/neutral    # ✅ speechgen, parler  ❌ mms")
+
+    click.echo("\n Descubrir modelos:")
+    click.echo("   word2speech models   # Lista todos los modelos")
 
 
 if __name__ == "__main__":

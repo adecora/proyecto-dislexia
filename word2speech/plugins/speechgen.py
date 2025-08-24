@@ -44,10 +44,13 @@ class SpeechGenModel(TTSModel):
                 raise HTTPError(f"400 Bad Request: {response['error']}")
 
     def supports(self, feature):
-        """Comprobar si el modelo admite una función específica"""
+        """Features soportadas por el modelo"""
         supported_features = {
             "ssml": True,
             "voices": True,
+            "speed": True,
+            "pitch": True,
+            "emotions": True,
             "contour": True,
             "offline": False,
         }

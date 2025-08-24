@@ -33,9 +33,6 @@ class ParlerModel(TTSModel):
         self._model = None
         self._tokenizer = None
         self._description_tokenizer = None
-        # @click.option("--speed", type=float, help="Velocidad del habla: 0.1-2.0 (default: 1.0)")
-        # @click.option("--pitch", help="Tono: low/normal/high or -20 to 20 (default: 0)")
-        # @click.option("--emotion", help="Emoción: calm/energetic/neutral (default: neutral)")
 
         # Opciones de prosodia predefinidas
         self.speaker_map = {"male": "Steven's voice", "female": "Olivia's voice"}
@@ -84,10 +81,13 @@ class ParlerModel(TTSModel):
         return (audio_bytes, "wav", 0, 0)
 
     def supports(self, feature):
-        """Comprobar si el modelo admite una función específica"""
+        """Features soportadas por el modelo"""
         supported_features = {
             "ssml": False,
             "voices": True,  # Acepta female/male
+            "speed": True,
+            "pitch": True,
+            "emotions": True,
             "contour": False,
             "offline": True,
         }
@@ -97,7 +97,6 @@ class ParlerModel(TTSModel):
         """Construye la descripción de la voz para Parler-TTS."""
         model_config = config.get_model_config(self.model_id)
 
-        # Parámetros por defecto
         speaker = model_config.get("speaker", "Steven's voice")
         speed = model_config.get("speed", "slow")
         pitch = model_config.get("pitch", "normal")

@@ -1,3 +1,4 @@
+from .mms_tts import MMSModel
 from .parler_tts import ParlerModel
 from .speechgen import SpeechGenModel
 
@@ -17,5 +18,12 @@ def discover_models():
     except ImportError:
         pass
 
+    # Registramos MMS-TTS si sus dependencias están disponibles
+    try:
+        parler = MMSModel()
+        registry.register(parler, aliases=["mms"])
+    except ImportError:
+        pass
 
-__all__ = ["discover_models", "ParlerModel", "SpeechGenModel"]
+
+__all__ = ["discover_models", "MMSModel", "ParlerModel", "SpeechGenModel"]
