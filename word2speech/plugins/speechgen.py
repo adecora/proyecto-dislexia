@@ -18,6 +18,10 @@ class SpeechGenModel(TTSModel):
         super().__init__("speechgen.io", "SpeechGen.io")
         self.url = "https://speechgen.io/index.php?r=api/text"
 
+        self.speaker_map = {"female": "Estrella", "male": "Alvaro"}
+        self.pitch_map = {"low": -10, "normal": 0, "high": 10}
+        self.emotion_map = {"calm": "good", "energetic": "evil", "neutral": "neutral"}
+
     def generate(self, text, **kwargs):
         """Generar audio utilizando la API de SpeechGen.io."""
         params = self._build_params(text, **kwargs)
@@ -39,6 +43,16 @@ class SpeechGenModel(TTSModel):
             else:
                 raise HTTPError(f"400 Bad Request: {response['error']}")
 
+    def supports(self, feature):
+        """Comprobar si el modelo admite una función específica"""
+        supported_features = {
+            "ssml": True,
+            "voices": True,
+            "contour": True,
+            "offline": False,
+        }
+        return supported_features
+
     def _build_params(self, text, **kwargs):
         model_config = config.get_model_config(self.model_id)
 
@@ -50,7 +64,7 @@ class SpeechGenModel(TTSModel):
             "speed": 1.0,
             "pitch": 0,
             "emotion": "neutral",
-            "bitrate": 48000,
+            "bitrate": 44100,
         }
 
         # Validamos parámetros obligatorios
@@ -61,14 +75,16 @@ class SpeechGenModel(TTSModel):
 
         # Sobreescribimos los parámetros modificados
         if "voice" in kwargs:
-            params["voice"] = kwargs["voice"]
+            params["voice"] = self.speaker_map.get(kwargs["voice"].lower(), kwargs["voice"])
         if "speed" in kwargs:
             params["speed"] = kwargs["speed"]
         if "pitch" in kwargs:
-            params["pitch"] = kwargs["pitch"]
+            try:
+                params["pitch"] = int(kwargs["pitch"])
+            except ValueError:
+                params["pitch"] = self.pitch_map.get(kwargs["pitch"].lower(), 0)
         if "emotion" in kwargs:
-            emotion_map = {"calm": "good", "energetic": "evil", "neutral": "neutral"}
-            params["emotion"] = emotion_map.get(kwargs["emotion"].lower(), "neutral")
+            params["emotion"] = self.emotion_map.get(kwargs["emotion"].lower(), params["emotion"])
 
         # Manejo específico de los puntos de contorno
         if "contour" in kwargs:

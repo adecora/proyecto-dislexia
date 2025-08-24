@@ -25,6 +25,11 @@ class TTSModel(abc.ABC):
         """
         pass
 
+    @abc.abstractmethod
+    def supports(self, feature):
+        """Comprobar si el modelo admite una función específica"""
+        pass
+
     def __str__(self):
         return f"{self.name} ({self.model_id})"
 

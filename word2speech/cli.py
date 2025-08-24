@@ -72,11 +72,7 @@ def speak(text, model, output, voice, speed, pitch, emotion):
     if speed:
         options["speed"] = speed
     if pitch:
-        try:
-            options["picth"] = int(pitch)
-        except ValueError:
-            picth_map = {"low": -10, "normal": 0, "high": 10}
-            options["picth"] = picth_map.get(pitch.lower(), 0)
+        options["pitch"] = pitch
     if emotion:
         options["emotion"] = emotion
 
