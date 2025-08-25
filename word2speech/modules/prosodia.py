@@ -1,6 +1,8 @@
 import warnings
 
+# TODO: epitran va a ser deprecada buscar otra librería para tranliteración IPA
 warnings.filterwarnings("ignore", module="epitran")
+warnings.filterwarnings("ignore", category=SyntaxWarning)
 
 import epitran
 

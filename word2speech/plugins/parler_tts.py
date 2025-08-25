@@ -3,6 +3,11 @@ Implementación del modelo TTS Parler-TTS
 Utilizando la abstracción de la plantilla TTSModel
 """
 
+import logging
+
+# Silenciamos el mensaje de: "Flash attention 2 is not installed"
+logging.getLogger("parler_tts").setLevel(logging.ERROR)
+
 from io import BytesIO
 
 from ..config import config
