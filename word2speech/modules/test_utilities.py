@@ -1,10 +1,7 @@
-import unicodedata
-
 import pytest
 
 from .utilities import (
     Contour,
-    Normalizer,
     validate_bitrate,
     validate_contour_point,
     validate_emotion,
@@ -16,15 +13,6 @@ from .utilities import (
 
 class CustomError(Exception):
     pass
-
-
-def test_normalizar():
-    norm = Normalizer()
-    assert norm.normalize("jalapeños") == unicodedata.normalize("NFD", "jalapeños")
-    assert norm.normalize("día") == "dia"
-    assert norm.normalize("táfuci") == "tafuci"
-    assert norm.normalize("NIÑO") == unicodedata.normalize("NFD", "niño")
-    assert norm.normalize("ambigüo") == "ambiguo"
 
 
 def test_entonacion_succeed():

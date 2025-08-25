@@ -1,12 +1,13 @@
 {
   "palabras": [
-    "abrazo",
-    "bebida",
-    "órganos"
+    ["abrazo", "abrazo"],
+    ["bebida", "bebida"],
+    ["organos", "órganos"]
   ],
   "nopalabras": [
-    "babados",
-    "bacela",
-    "plátaco"
-  ] 
+    ["babados", "babados"],
+    ["bacela", "bacela"],
+    ["plataco", "plátaco"],
+    ["estupido", "estúpido"]
+  ]
 }

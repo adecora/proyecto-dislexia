@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-import json
 import glob
+import json
 import sys
 
+from modules.normalizer import normalizer
 from modules.parser import parse_file
 
 
@@ -19,13 +20,16 @@ def main():
     for file in files:
         nopalabras.update(parse_file(file))
 
-    # Las páginas "no palabras" de los ficheros contienen las subcabeceras 
+    # Las páginas "no palabras" de los ficheros contienen las subcabeceras
     # parte_a y parte_b, las eliminamos del resultado
     nopalabras.discard("parte_a")
     nopalabras.discard("parte_b")
 
     json.dump(
-        {"palabras": sorted(palabras), "nopalabras": sorted(nopalabras)},
+        {
+            "palabras": [[normalizer.normalize(word), word] for word in sorted(palabras)],
+            "nopalabras": [[normalizer.normalize(word), word] for word in sorted(nopalabras)],
+        },
         sys.stdout,
         indent=2,
         ensure_ascii=False,

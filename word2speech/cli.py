@@ -266,17 +266,45 @@ def keys_list():
 @cli.command()
 @click.argument("json_file", type=click.Path(exists=True))
 @click.option("-m", "--model", default="speechgen.io", help="Modelo TTS a usar (default: speechgen.io)")
-def batch(json_file, model):
-    """Genera audio de palabras/pseudoplabras de un fichero JSON."""
-    import json
+@click.option("--voice", help="Voz: male/female o nombre específico (p.ej., 'Alvaro')")
+@click.option("--speed", type=float, help="Velocidad del habla: 0.1-2.0 (default: 1.0)")
+@click.option("--pitch", help="Tono: low/normal/high or -20 to 20 (default: 0)")
+@click.option("--emotion", help="Emoción: calm/energetic/neutral (default: neutral)")
+@click.option(
+    "--contour", "-c", multiple=True, metavar="tiempo,tono", help="Detalle de entonación. timepo %% duración (0-100), tono %% entonación (-100 a 100)"
+)
+def batch(json_file, model, voice, speed, pitch, emotion, contour):
+    """
+    Genera audio de palabras/pseudoplabras de un fichero JSON.
 
-    from .modules.utilities import normalizer
+    Formato del fichero:
+    {
+        <directorio>: [
+            [<nombre del fichero>, <texto>]
+            ...
+        ]
+        ...
+    }
+    """
+    import json
 
     tts_model = registry.get(model)
     if not tts_model:
         click.echo(f"Moldelo '{model}' no encontrado.", err=True)
         click.echo("Usa 'word2speech models' para ver los modelos disponibles.", err=True)
         sys.exit(1)
+
+    options = {}
+    if voice:
+        options["voice"] = voice
+    if speed:
+        options["speed"] = speed
+    if pitch:
+        options["pitch"] = pitch
+    if emotion:
+        options["emotion"] = emotion
+    if contour:
+        options["contour"] = contour
 
     # Leemos el fichero
     with open(json_file, "r", encoding="utf8") as fd:
@@ -286,12 +314,11 @@ def batch(json_file, model):
         # No lanza excepción si el directorio ya existe
         Path(category).mkdir(parents=True, exist_ok=True)
 
-        for word in word_list:
+        for filename, word in word_list:
             try:
-                filename = normalizer.normalize(word)
                 log.info(f'Generando audio para: "{word}"')
 
-                audio, file_format, cost, balance = tts_model.generate(word)
+                audio, file_format, cost, balance = tts_model.generate(word, **options)
                 output_file = f"{category}/{filename}.{file_format}"
 
                 with open(output_file, "wb") as f:

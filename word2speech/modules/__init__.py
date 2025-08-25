@@ -13,7 +13,6 @@ from .prosodia import IPAError, ssml_for_word
 from .transformer import Word2Speech
 from .utilities import (
     Contour,
-    Normalizer,
     is_valid_file_word,
     validate_bitrate,
     validate_config_file,
