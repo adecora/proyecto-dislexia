@@ -1,3 +1,6 @@
 {
   "editor.stickyScroll.enabled": false,
+  "zenMode.hideLineNumbers": false,
+  "zenMode.hideStatusBar": false
+
 }

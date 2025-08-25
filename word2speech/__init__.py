@@ -1,4 +1,4 @@
 # word2speech/__init__.py
-from .main import main
+from .cli import cli
 
-__all__ = ["main"]
+__all__ = ["cli"]
