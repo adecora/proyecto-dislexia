@@ -1,3 +1,7 @@
+import warnings
+
+warnings.filterwarnings("ignore", module="epitran")
+
 import epitran
 
 
