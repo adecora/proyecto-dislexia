@@ -2,7 +2,7 @@
 
 Genera audios a partir de palabras (reales o falsas), para el tratamiento de pacientes con dislexia u otras dificultades específicas de aprendizaje.
 
-Un proyecto de Alejandro Varela de Cora.
+Un **proyeto** de Alejandro Varela de Cora.
 
 ### Entorno software
 
