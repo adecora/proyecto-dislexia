@@ -5,8 +5,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "word2speech"
 version = "2.0.0"
-description = "Herramienta CLI para transformar palabras en audios para el tratamiento de dislexia"
-authors = [{name = "Alejandro Varela de Cora"}]
+description = "Herramienta CLI para el manejo de modelos TTS"
+authors = [{name = "Alejandro Varela de Cora", email = "alejandrodecora@gmail.com"}]
 readme = "README.md"
 license = "GPL-3.0-only"
 requires-python = ">=3.12"
@@ -19,16 +19,20 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+analyze = [
+  "torch>=2.0.0",
+  "librosa>=0.11.0"
+]
 local-models = [
   "torch>=2.0.0",
   "transformers>=4.30.0",
+  "soundfile>=0.12.0",
   "parler-tts>=0.1.0",
   "llvmlite>=0.42.0",    # Versión compatible con Python 3.12
   "numba>=0.58.0"        # Versión compatible con Python 3.12
-
 ]
 all = [
-  "word2speech[local-models]"
+  "word2speech[analyze,local-models]"
 ]
 
 [project.scripts]

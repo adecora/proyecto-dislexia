@@ -47,9 +47,7 @@ def cli(ctx, version, verbose):
 @click.option("--speed", type=float, help="Velocidad del habla: 0.1-2.0 (default: 1.0)")
 @click.option("--pitch", help="Tono: low/normal/high or -20 to 20 (default: 0)")
 @click.option("--emotion", help="Emoción: calm/energetic/neutral (default: neutral)")
-@click.option(
-    "--contour", "-c", multiple=True, metavar="tiempo,tono", help="Detalle de entonación. timepo %% duración (0-100), tono %% entonación (-100 a 100)"
-)
+@click.option("--contour", "-c", multiple=True, metavar="tiempo,tono", help="Detalle de entonación. %tiempo  duración (0 a 100), %tono entonación (-100 a 100)")
 def speak(text, model, output, voice, speed, pitch, emotion, contour):
     """
     Generar voz a partir de texto usando modelos TTS.
@@ -235,6 +233,7 @@ def keys_set(provider, key):
     """
     Configura la clave API.
 
+    \b
     Para SpeechGen.io, es necesario:
       word2speech keys set speechgen TU_TOKEN
       word2speech keys set speechgen-email TU_EMAIL
@@ -270,13 +269,12 @@ def keys_list():
 @click.option("--speed", type=float, help="Velocidad del habla: 0.1-2.0 (default: 1.0)")
 @click.option("--pitch", help="Tono: low/normal/high or -20 to 20 (default: 0)")
 @click.option("--emotion", help="Emoción: calm/energetic/neutral (default: neutral)")
-@click.option(
-    "--contour", "-c", multiple=True, metavar="tiempo,tono", help="Detalle de entonación. timepo %% duración (0-100), tono %% entonación (-100 a 100)"
-)
+@click.option("--contour", "-c", multiple=True, metavar="tiempo,tono", help="Detalle de entonación. %tiempo duración (0 a 100), %tono entonación (-100 a 100)")
 def batch(json_file, model, voice, speed, pitch, emotion, contour):
     """
     Genera audio de palabras/pseudoplabras de un fichero JSON.
 
+    \b
     Formato del fichero:
     {
         <directorio>: [
@@ -331,6 +329,70 @@ def batch(json_file, model, voice, speed, pitch, emotion, contour):
 
 
 @cli.command()
+@click.argument("path", nargs=1, required=True)
+@click.option("--verbose", "-v", is_flag=True, help="Verbose información a nivel fichero")
+def analyze(path, verbose):
+    """
+    Analyze evalúa la calidad terapeutica de los modelos TTS.
+
+    \b
+    Ejemplos:
+      word2speech analyze speechgen/
+      word2speech analyze mms/
+      word2speech analyze parler/
+    """
+    from glob import glob
+
+    from .analysis import AudioAnalyzer
+
+    analyze = AudioAnalyzer()
+    path_obj = Path(path)
+
+    if not Path(path).exists():
+        click.echo(f"El PATH no es existe:{path}", err=True)
+        sys.exit(1)
+
+    results = []
+
+    # Si es una archivo
+    if path_obj.is_file():
+        if not path.lower().endswith(".wav"):
+            click.echo(f"El archivo debe ser en formato WAV: {path}", err=True)
+            sys.exit(1)
+
+        report = analyze.analyze_file(path)
+        results.append((path, report))
+
+    # Si es un directorio
+    elif path_obj.is_dir():
+        audio_files = glob(f"{path}/*.wav")
+        if not audio_files:
+            click.echo(f"No hat archivos WAV para evaluar: {path}", err=True)
+            sys.exit(1)
+
+        for audio_file in audio_files:
+            report = analyze.analyze_file(audio_file)
+            results.append((audio_file, report))
+
+    else:
+        click.echo(f"El PATH deber ser un archivo o directorio: {path}", err=True)
+        sys.exit(1)
+
+    # Media de metrica
+    performance = sum(map(lambda row: row[1], results)) / len(results)
+
+    if len(results) == 1:
+        click.echo(f"El audio analizado obtiene una puntuación total de: {performance:.4f}")
+    else:
+        click.echo(f"Los {len(results)} audios analizados obtiene una puntuación total de: {performance:.4f}")
+
+    if verbose:
+        click.echo("")
+        for file, perf in results:
+            click.echo(f"{file}: {perf}")
+
+
+@cli.command()
 def cheat():
     """Guía rápida de opciones comunes."""
     click.echo("Word2Speech Guía Rápida")
@@ -354,3 +416,10 @@ def cheat():
 
 if __name__ == "__main__":
     cli()
+
+[
+    ["2refran/tigres.wav", {"inteligibilidad": 0.6139055808549077, "prosodia": 0.5636336603676589, "fatiga": 0.07530303736494184}],
+    ["2refran/ladrillo.wav", {"inteligibilidad": 0.6049577731575326, "prosodia": 0.7328495306883905, "fatiga": 0.07729621807054673}],
+    ["2refran/pablo.wav", {"inteligibilidad": 0.3894208520610828, "prosodia": 0.6004951248034262, "fatiga": 0.06245461076499961}],
+    ["2refran/lluvia.wav", {"inteligibilidad": 0.3684653413305775, "prosodia": 0.4789712707502288, "fatiga": 0.09446736892646326}],
+]

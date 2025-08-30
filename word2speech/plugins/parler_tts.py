@@ -70,11 +70,14 @@ class ParlerModel(TTSModel):
         description = self._build_voice_description(**kwargs)
 
         # Tokeniza las entradas
-        input_ids = self.description_tokenizer(description, return_tensors="pt").input_ids.to(self.device)
+        description_tokens = self.description_tokenizer(description, return_tensors="pt", padding=True, truncation=True)  # .input_ids.to(self.device)
+        input_ids = description_tokens.input_ids.to(self.device)
+        attention_mask = description_tokens.attention_mask.to(self.device)
+
         prompt_input_ids = self.tokenizer(text, return_tensors="pt").input_ids.to(self.device)
 
         # Genera el audio
-        generation = self.model.generate(input_ids=input_ids, prompt_input_ids=prompt_input_ids)
+        generation = self.model.generate(input_ids=input_ids, attention_mask=attention_mask, prompt_input_ids=prompt_input_ids)
         audio_arr = generation.cpu().numpy().squeeze()
 
         # Guardamos en un buffer y leemos los bytes
