@@ -36,7 +36,7 @@ all = [
 ]
 
 [project.scripts]
-word2speech = "word2speech:main"
+word2speech = "word2speech.cli:cli"
 
 [project.urls]
 Homepage = "https://github.com/adecora/proyecto-dislexia"
