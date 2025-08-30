@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 @click.option("--verbose", "-v", is_flag=True, help="Verbose logging")
 @click.pass_context
 def cli(ctx, version, verbose):
-    """word2speech: TTS adaptativo para el tratamiento de la dislexia."""
+    """word2speech: Herramienta CLI para el manejo de modelos TTS."""
     if verbose:
         logging.basicConfig(level=logging.DEBUG, format="[%(asctime)s] %(levelname)s: %(message)s", force=True)
     else:
@@ -143,7 +143,7 @@ def spell(word, model, output, pause, include_word):
 @click.option("--pitch-level", default="medium", help="Nivel de tono")
 @click.option("--volume", default="medium", help="Nivel de volumen")
 def prosody(word, model, output, rate, pitch_level, volume):
-    """Genera voz con prosodia mejorada usando SSML y AFI"""
+    """Genera voz con prosodia mejorada usando SSML y IPA"""
     tts_model = registry.get(model)
     if not tts_model:
         click.echo(f"Moldelo '{model}' no encontrado.", err=True)
@@ -333,13 +333,14 @@ def batch(json_file, model, voice, speed, pitch, emotion, contour):
 @click.option("--verbose", "-v", is_flag=True, help="Verbose información a nivel fichero")
 def analyze(path, verbose):
     """
-    Analyze evalúa la calidad terapeutica de los modelos TTS.
+    Analyze predice el índice MOS de los audios.
 
     \b
     Ejemplos:
-      word2speech analyze speechgen/
+      word2speech analyze speechgen/          # Analiza directorio
       word2speech analyze mms/
-      word2speech analyze parler/
+      word2speech analyze audio.wav           # Analiza archivo de audio
+      word2speech analyze speechgen/audio.wav
     """
     from glob import glob
 
@@ -401,6 +402,7 @@ def cheat():
     click.echo("\n Inicio:")
     click.echo('   word2speech speak "text"                    # Audio básico')
     click.echo("   word2speech keys set speechgen YOUR_TOKEN   # Setup API")
+    click.echo('   word2speech batch "data.json"               # Audio por lotes')
 
     click.echo("\n Opciones universales (funcionan en TODOS los modelos):")
     click.echo("    --speed 0.1-2.0      -m model_name       -o filename")
@@ -409,17 +411,15 @@ def cheat():
     click.echo("   --voice female/male/name            # ✅ speechgen, parler  ❌ mms")
     click.echo("   --pitch low/normal/high/-20-20      # ✅ speechgen, parler  ❌ mms")
     click.echo("   --emotion calm/energetic/neutral    # ✅ speechgen, parler  ❌ mms")
+    click.echo("   --countour tiempo,tono              # ✅ speechgen          ❌ parler, mms")
 
     click.echo("\n Descubrir modelos:")
     click.echo("   word2speech models   # Lista todos los modelos")
 
+    click.echo("\n Analizar modelos:")
+    click.echo("   word2speech analyze audio.wav   # Analiza un audio")
+    click.echo("   word2speech analyze mms/        # Analiza un directorio")
+
 
 if __name__ == "__main__":
     cli()
-
-[
-    ["2refran/tigres.wav", {"inteligibilidad": 0.6139055808549077, "prosodia": 0.5636336603676589, "fatiga": 0.07530303736494184}],
-    ["2refran/ladrillo.wav", {"inteligibilidad": 0.6049577731575326, "prosodia": 0.7328495306883905, "fatiga": 0.07729621807054673}],
-    ["2refran/pablo.wav", {"inteligibilidad": 0.3894208520610828, "prosodia": 0.6004951248034262, "fatiga": 0.06245461076499961}],
-    ["2refran/lluvia.wav", {"inteligibilidad": 0.3684653413305775, "prosodia": 0.4789712707502288, "fatiga": 0.09446736892646326}],
-]
