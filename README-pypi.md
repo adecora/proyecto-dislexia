@@ -1,101 +1,134 @@
 # word2speech
 
-Genera audios a partir de palabras (reales o falsas), para el tratamiento de pacientes con dislexia u otras dificultades específicas de aprendizaje.
+Es una herramienta para la generación automatizada de material sonoro de alta calidad a través del uso de varios modelos de síntesis de voz (TTS, Text-to-Speech).
 
-Un proyecto de Alejandro Varela de Cora.
+Un **proyecto** de Alejandro de Cora.
 
 ## Instalación
 
-Se necesita `python>=3.12`, se recomienda utiliza `pipx` para la instalación.
+Se necesita `python>=3.12`, se recomienda utilizar `pipx` para la instalación, aunque los comandos también funcionan con `pip` (en cuyo caso se recomienda un entorno virtual).
 
-```shell
-$ pipx install --pip-args="--extra-index-url https://pypi.org/simple/" --index-url https://test.pypi.org/simple/ word2speech
-```
+La herramienta se puede instalar por niveles, dependiendo de las funcionalidades que se deseen utilizar:
+
+| Instalación         | Descripción                                                        | Comando de Instalación                   |
+| :------------------ | :----------------------------------------------------------------- | :--------------------------------------- |
+| **Básica**          | Soporte de generación TTS únicamente con speechgen.io.             | `pipx install --pip-args="--extra-index-url https://pypi.org/simple/" --index-url https://test.pypi.org/simple/ word2speech`               |
+| **Modelos Locales** | Añade la generación TTS con modelos locales (Parler-TTS, MMS-TTS). | `pipx install --pip-args="--extra-index-url https://pypi.org/simple/" --index-url https://test.pypi.org/simple/ word2speech[local-models]` |
+| **Análisis**        | Permite la evaluación terapéutica de los audios con el módulo MOS. | `pipx install --pip-args="--extra-index-url https://pypi.org/simple/" --index-url https://test.pypi.org/simple/ word2speech[analysis]`     |
+| **Completa**        | Instalación completa.                                              | `pipx install --pip-args="--extra-index-url https://pypi.org/simple/" --index-url https://test.pypi.org/simple/ word2speech[all]`          |
 
 ## Configuración
 
-Para usar word2speech necesitas configurar:
-- **token**: Token de API de speechgen.io
-- **email**: Email registrado en speechgen.io
-- **voice**: Voz a utilizar (ej: Alvaro)
+La configuración está diseñada para ser flexible. word2speech permite la gestión de las credenciales de las APIs a través de la línea de comandos.
 
-### Archivo de configuración
-Crea `~/.word2speech/config.yml`:
-```yaml
-token: tu_token_aqui
-email: tu_email@domain.com
-voice: Alvaro
+La aplicación busca la configuración siguiendo una estructura jerárquica:
+
+1.  Fichero de configuración local: `.word2speech/config.yml`.
+2.  Configuración global del usuario: `$HOME/.config/word2speech/config.yml` o `$HOME/.word2speech/config.yml`.
+
+### Gestión de Claves API
+
+Para el manejo de las claves API, se utiliza el comando `keys`.
+
+Para configurar el modelo principal, **speechgen.io**, es necesario configurar el token y el correo electrónico:
+
+```bash
+# Configurar el token API
+word2speech keys set speechgen TU_TOKEN
+
+# Configurar el correo electrónico asociado a la cuenta de SpeechGen.io
+word2speech keys set speechgen-email TU_EMAIL
+
+# Listar las claves API configuradas
+word2speech keys list
 ```
 
-## Inicio rápido
+### Inicio rápido
 
-Si no proporcionamos un fichero de configuración mediante el flag `--config`, la aplicación busca automáticamente primero en la configuración local del proyecto `./.word2speech/config.yml` y después en la configuración global del usuario `~/.word2speech/config.yml`.
+Para empezar a generar audios, se utiliza el comando `speak`.
 
-Si no encuentra ningún archivo, los parámetros obligatorios (token, email, voice) deben proporcionarse por línea de comandos.
+1.  **Generar audio básico con el modelo por defecto (speechgen.io):**
 
-```shell
-$ word2speech palabra
-[17:19:25]: Generando el audio de la palabra "palabra"
-[17:19:26]: Audio generado "out.mp3" (coste: 7, saldo: 61705)
+    ```bash
+    word2speech speak "La universidad de Málaga"
+    ```
+
+2.  **Descubrir modelos y opciones disponibles:**
+
+    El comando `models` permite listar todos los modelos TTS disponibles, sus características (como el soporte de SSML o el modo *Offline*), y ejemplos de uso.
+
+    ```bash
+    word2speech models
+    ```
+
+3.  **Generar audio utilizando un modelo local (mms):**
+
+    ```bash
+    word2speech speak "El jugador estaba cansado" -m mms
+    ```
+
+## Ejemplos de Uso
+
+word2speech implementa comandos para generar audio de forma individual, por lotes y con funcionalidades específicas para el tratamiento de la dislexia. El parámetro `-m` permite especificar el modelo (ej. `mms`, `parler`, `speechgen`).
+
+### 1. Generación de Audio con Control Prosódico (`speak`)
+
+El comando `speak` permite controlar opciones de prosodia como velocidad, voz y emoción.
+
+```bash
+# Audio con voz femenina y velocidad reducida (0.8) usando speechgen.io
+$ word2speech speak "Tres tristes tigres" --voice female --speed 0.8
+[23:54:48]: Generando audio para: "Tres tristes tigres"
+[23:54:49]: Audio generado "out.wav" (coste: 19, saldo: 64927)
+
+# Audio generado con "parler" especificando la emoción
+$ word2speech speak "Salió a jugar" -m parler --emotion calm
+
+# Uso de puntos de contorno (pitch contours) para acentuar la sílaba tónica.
+# Nota: Esta función solo está disponible si el modelo soporta SSML (ej. speechgen.io).
+$ word2speech speak --voice female --speed 0.8 --pitch +2 -c 20,-80 -c 40,-80 -c 65,100 -c 80,-80 -c 100,-80 "hipopótamo"
 ```
 
-### Procesamiento por lotes con JSON
+### 2. Deletreo Silábico (`spell`)
 
-Crea un archivo JSON con el siguiente formato:
-```json
-{
-  "palabras": ["abrazo", "bebida", "órganos"],
-  "nopalabras": ["babados", "bacela", "plátaco"]
-}
+El módulo `spell` está diseñado para crear ejercicios de concienciación silábica mediante el **deletreo de palabras sílaba a sílaba**. Requiere que el modelo TTS soporte **SSML** (Speech Synthesis Markup Language).
+
+```bash
+# Deletrear una palabra sílaba a sílaba (ejemplo usando el modelo por defecto)
+$ word2speech spell "televisión" --include-word
 ```
 
-Luego procésalo:
+Si el modelo seleccionado no soporta SSML, word2speech lo notifica:
 
-```shell
-$ word2speech data-reduce.json
-[17:19:40]: Generando el audio de la palabra "abrazo"
-[17:19:40]: Audio generado "palabras/abrazo.mp3" (coste: 0, saldo: 61705)
-[17:19:40]: Generando el audio de la palabra "bebida"
-[17:19:40]: Audio generado "palabras/bebida.mp3" (coste: 0, saldo: 61705)
-[17:19:41]: Generando el audio de la palabra "órganos"
-[17:19:41]: Audio generado "palabras/organos.mp3" (coste: 0, saldo: 61705)
-[17:19:41]: Generando el audio de la palabra "babados"
-[17:19:41]: Audio generado "nopalabras/babados.mp3" (coste: 0, saldo: 61705)
-[17:19:41]: Generando el audio de la palabra "bacela"
-[17:19:42]: Audio generado "nopalabras/bacela.mp3" (coste: 0, saldo: 61705)
-[17:19:42]: Generando el audio de la palabra "plátaco"
-[17:19:42]: Audio generado "nopalabras/plataco.mp3" (coste: 0, saldo: 61705)
+```bash
+$ word2speech spell "manzana" --model mms --include-word
+El modelo 'mms' no soporta deletreo (requiere SSML)
 ```
 
-## Uso de subcomandos
+### 3. Generación por Lotes (`batch`)
 
-`word2speech` tiene disponibles 2 subcomandos, `deletrear` y `prosodia`:
+El comando `batch` permite a los terapeutas la **generación masiva de audios** de palabras y pseudopalabras a partir de un fichero de entrada en formato JSON.
 
-- `deletrear`: Genera el audio de una palabra sílaba por sílaba
-  ```shell
-  $ word2speech deletrear albaricoque
-  [17:29:09]: Generando audio deletreado por sílabas de la palabra "albaricoque"
-  [17:29:09]: Texto deletreado: al <break time="250ms"/> ba <break time="250ms"/> ri <break time="250ms"/> co <break time="250ms"/> que
-  [17:29:13]: Audio deletreado generado "out_deletreo.mp3" (coste: 95, saldo: 61610)
+```bash
+# Generación masiva a partir de un fichero de datos (data.json)
+$ word2speech batch data-reduce.json
 
-  # El flag --include-word añade la palabra deletreada al final de audio
-  $ word2speech deletrear albaricoque --include-word
-  [17:30:51]: Generando audio deletreado por sílabas de la palabra "albaricoque"
-  [17:30:51]: Texto deletreado: al <break time="250ms"/> ba <break time="250ms"/> ri <break time="250ms"/> co <break time="250ms"/> que <break time="1s"/> albaricoque
-  [17:30:53]: Audio deletreado generado "out_deletreo.mp3" (coste: 124, saldo: 61486)
-  ```
-- `prosodia`: Genera una versión de la palabra con mayor énfasis en la prosodia de la misma mediante el uso de [SSML](https://www.w3.org/TR/speech-synthesis/) para enriquecer la palabra y la trancripción fonética IPA.
-  ```shell
-  $ word2speech prosodia albaricoque
-  [17:35:20]: IPA generado con epitran para 'albaricoque': albaɾikoke
-  [17:35:20]: Generando audio con prosodia mejorada de la palabra "albaricoque"
-  [17:35:20]: SSML generado: <prosody rate="medium" pitch="medium" volume="medium"><phoneme alphabet="ipa" ph="albaɾikoke">albaricoque</phoneme></prosody>
-  [17:35:21]: Audio con prosodia generado "out_prosodia.mp3" (coste: 125, saldo: 61361)
-  ```
+# Aplicar prosodia específica a todo el lote
+$ word2speech batch data-reduce.json -m parler --voice female --speed 0.8 --emotion calm
+```
+
+### 4. Análisis de Calidad (`analyze`)
+
+El comando `analyze` utiliza un modelo de predicción de **Mean Opinion Score (MOS)** (UTMOS 2022 Strong). Esto permite **evaluar la calidad percibida del audio generado** (un valor continuo entre 1 y 5) y seleccionar el TTS más adecuado para los ejercicios terapéuticos.
+
+```bash
+# Analizar la calidad MOS de un fichero de audio específico
+$ word2speech analyze /ruta/a/mi/audio.wav
+```
 
 ## Limitación windows
 
-En Windows debido a la codificación de la consola por defecto pueden surgir problemas a la hora de ejecutar el subcomando `prosodia`, la solución pasa por forzar la codificación `UTF-8`
+En Windows debido a la codificación de la consola por defecto pueden surgir problemas a la hora de ejecutar el subcomando `prosody`, la solución pasa por forzar la codificación `UTF-8`
 
 ```cmd
 > set PYTHONUTF8=1
